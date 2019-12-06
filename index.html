@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel='icon' href='jukeboxIcon.png' type='image/x-icon' >
+<script src="zDialogue2.js"></script>
+<title>PPC Jukebox</title>
+<style>
+  * {
+   -webkit-user-select: none;  /* Chrome all / Safari all */
+   -moz-user-select: none;     /* Firefox all */
+   -ms-user-select: none;      /* IE 10+ */
+   /*filter: brightness(100%);*/
+  }
+  
+  body {
+    padding:0;
+    margin:0;
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    background-color: black;
+  }
+  
+  #jukeboxDiv {
+    width:66%;
+    height:100%;
+    position:relative;
+  }
+  
+  #cover {
+    position: absolute;
+    right: calc((100% - 407px) / 2);
+    bottom :0;
+    height:100%;
+    width:407px;
+    height:700px;
+    z-index:100;
+  }
+  
+  #ctrl {
+    position: absolute;
+    right: calc((100% / 2) - 119px);
+    bottom:551px;
+    width:240px;
+    height:100px;
+    background-color:transparent;
+    border-radius: 20% 20% 0 0;
+    z-index:110;
+  }
+  
+  audio:hover + #subCtrl {
+    height:76px;
+    border-radius: 0 0 5px 5px;
+    transition-timing-function: linear;
+    transition-delay: 1s;
+    transition: height 2s, display 2s;
+  }
+
+  audio {
+    margin-top:8px;
+    height:40px;
+    width:227px;
+    background-color:darkgrey;
+    border:6px solid #bd8c5e;
+  }
+  
+  /*audio:hover {*/
+  /*  width:352px;*/
+  /*  margin-left:-58px;*/
+  /*}*/
+  
+  #subCtrl {
+    background-color:#bd8c5e;
+    height:0;
+    width:239px;
+    margin-top:-4px;
+    overflow:hidden;
+    z-index:120;
+    transition-timing-function: linear;
+    transition-delay: 1s;
+    transition: height 2s;
+  } 
+  
+  #subCtrl:hover {
+    height:76px;
+    border-radius: 0 0 5px 5px;
+    transition-timing-function: linear;
+    transition-delay: 1s;
+    transition: height 2s;
+  }
+ 
+  #subCtrlBody {
+    display:block;
+    margin:5px;
+    height:59px;
+    margin-top:10px;  
+    background-color:#393738;
+  }
+ 
+  #songsListBtn{
+    margin-top:50px;
+    margin-left:58px;
+    height:96px;
+    width:117px;
+  }
+  
+  #curPlBtn {
+    position:absolute;
+    top:98px;
+    left:23px;
+    height:48px;
+    width:28px;
+  }
+  
+  #savePlBtn {
+    position:absolute;
+    top:98px;
+    left:183px;
+    height:48px;
+    width:28px;
+  }
+  
+  #helpBtn {
+    position: absolute;
+    top: 230px;
+    left: 187px;
+    height: 27px;
+    width: 36px;
+    z-index:-1;
+  }
+  
+  #savedPlaylistsDiv {
+    position:absolute;
+    width:280px;
+    max-height:80%;
+    top:10%;
+    left: calc((100% - 335px) / 2);
+    background-color:#f5ca57;
+    padding:10px;
+    color:black;
+    cursor:default;
+    z-index:10000;
+    overflow:hidden;
+    border:2px solid silver;
+    padding:25px;
+    display:none;
+  }
+  
+  #playlist {
+    position:absolute;
+    width:500px;
+    max-height:80%;
+    top:10%;
+    left: calc((100% - 500px) / 2);
+    background-color:#f5ca57;
+    padding:10px;
+    color:black;
+    cursor:default;
+    z-index:10000;
+    overflow-x:hidden;
+    overflow-y:scroll;
+    border:2px solid silver;
+    display:none;
+  }
+  
+  #songslist {
+    position:absolute;
+    width:500px;
+    max-height:80%;
+    top:10%;
+    left: calc((100% - 500px) / 2);
+    background-color:#393738;
+    padding:10px;
+    color:white;
+    cursor:default;
+    z-index:10000;
+    overflow-x:hidden;
+    overflow-y:scroll;
+    border:2px solid silver;
+    display:none;
+  }
+  
+  h3 {
+    color:black;
+    text-align:center;
+  }
+ 
+  .list h3 span {
+    color:grey;
+    margin-left: 10px;
+    display:inline;
+    border:0;
+  }
+  
+  .list h3 span:active {
+    background-color:transparent;
+  }
+  
+  button {
+    color:black;
+    width:100px;
+    margin:5px;
+    margin-bottom:15px;
+    font-size:12px;
+  }
+  
+  .list span {
+    margin:4px;
+    padding:4px;
+    border:2px solid black;
+    display:block;
+    overflow:hidden;
+  }
+  
+  .list span:active {
+    background-color:green;
+  }
+ 
+  .ctrlBtns {
+    margin: 5px;
+    padding: 10px;
+    display: inline-block;
+    color:white;
+    font-size: 29px;
+    background-color:gray;
+    width: 39px;
+    height: 30px;
+    text-align: center;
+    cursor:default;
+    border-radius:5px;
+  }
+  
+  #qBtn {
+    color:green;
+  }
+  
+  #clockDiv {
+    background: url("images/clock.png");
+    background-repeat: no-repeat;
+    background-size: 500px 500px;
+    position:absolute;
+    bottom:0;
+    right:0;
+    width:500px;
+    height:500px;
+  }
+  
+  #hourHand {
+    background: url("images/hHand.png");
+    background-repeat: no-repeat;
+    background-size: 16px 132px;
+    position:absolute;
+    top:154px;
+    right:248px;
+    width:16px;
+    height:132px;
+    transform:rotate(126deg);
+   
+  }
+  
+  #minuteHand {
+    background: url("images/mHand.png");
+    background-repeat: no-repeat;
+    background-size: 16px 132px;
+    position:absolute;
+    top:154px;
+    right:248px;
+    width:16px;
+    height:132px;
+    transform:rotate(180deg);
+   
+  }
+  
+  #secondHand {
+    background: url("images/sHand.png");
+    background-repeat: no-repeat;
+    background-size: 16px 132px;
+    position:absolute;
+    top:154px;
+    right:248px;
+    width:16px;
+    height:132px;
+    transform:rotate(80deg);
+  }
+  
+  #helpDiv h3 {
+    text-align:center;
+  }
+  
+  #helpDiv {
+    text-align:center;
+    position:absolute;
+    width:200px;
+    max-height:80%;
+    top:10%;
+    left: calc((100% - 224px) / 2);
+    background-color:#393738;
+    padding:10px;
+    color:white;
+    cursor:default;
+    z-index:20000;
+    overflow:hidden;
+    border:2px solid silver;
+    display:block;
+  }
+  
+  #msgDiv {
+    position:absolute;
+    width:300px;
+    height:40px;
+    top:40px;
+    right:5px;
+    background-color:transparent;
+    color:red;
+    text-shadow: 0 0 15px red;
+    font-size:40px;
+    padding:10px;
+    cursor:default;
+    z-index:20000;
+    overflow:hidden;
+    display:none;
+    text-align:right;
+  }
+
+  td {
+   text-align:left;
+   font-size:14px;
+   color:white;
+  }
+
+  td:first-child {
+    color:orange;
+    padding-right:5px;
+  }
+  
+  .radioSpan {
+    display: table-cell;
+    width: 40px;
+    height: 40px;
+    margin: ;
+    text-align: center;
+  }
+ 
+  .saveDlgBtnRow button {
+    margin:10px;
+    width:70px;
+    font-size:12px;
+  }
+  
+  #alarmIndicator {
+    position:absolute;
+    top:41px;
+    right:207px;
+    width:10px;
+    height:10px;
+    background-color:green;
+    border-radius:50%;
+    display:none;
+  }
+  a {
+    color:black;
+    text-decoration: none; 
+    margin : auto auto;
+  } 
+  a:active { 
+    text-decoration: none; 
+  }
+  #slHead span {
+    font-size:10px;
+  }
+  h5 {
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+  <div class="alarmBtn" id="clockDiv">
+    <div id="hourHand"></div>
+    <div id="minuteHand"></div>
+    <div id="secondHand"></div>
+    <div id="alarmIndicator"></div>
+    <audio id="clockAlarmPlayer">
+        <source src="images/Reveille.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+  <div id="jukeboxDiv">
+    <div id="msgDiv"></div> 
+    <div id="helpDiv">
+       <h3>Key Bindings</h3>
+       <table>
+         <tbody>
+           <tr><td>ESC</td><td>Return to Jukebox</td></tr>
+           <tr><td>H</td><td>This help box</td></tr>
+           <tr><td>L</td><td>Toggle lights</td></tr>
+           <tr><td>M</td><td>Mix playlist</td></tr>
+           <tr><td>V</td><td>View playlist</td></tr>
+           <tr><td>S</td><td>Search for Song</td></tr>
+           <tr><td>W</td><td>Save/Load playlist</td></tr>
+           <tr><td>C</td><td>Song collectons</td></tr>
+           <tr title="Action based on what you see"><td>&#8608;</td><td>Next collection<br>Next Song</td></tr>
+           <tr title="Action based on what you see"><td>&#8606;</td><td>Prev collection<br>Prev Song</td></tr>
+           <tr><td>N</td><td>Play next song</td></tr>
+           <tr><td>X</td><td>Empty playlist</td></tr>
+           <tr><td>P</td><td>Play / Pause song</td></tr>
+           <tr><td>&#8673;</td><td>Volume up</td></tr>
+           <tr><td>&#8675;</td><td>Volume down</td></tr>
+           <tr><td>Q</td><td title="Toggle between Jukebox mode and playlist mode.">Toggle play mode</td></tr>
+         </tbody>
+       </table>
+       <hr>
+       <a href="https://gospelriver.com" title="All music sourced from here.">Gospel River Home</a><br>
+       <hr>
+       <a href="https://www.youtube.com/watch?v=BhywpYpnFE0">A how to video.</a>
+    </div> 
+    <div class="list" id="playlist">
+       <div id="plHead">
+         <h3>Current Playlist</h3>
+         <button class="playBtnClass" title="Start/Stop the playlist">Play/Pause</button>
+         <button class="shuffleBtnClass" title="Guess! Come on.. Shuffle the playlist">Shuffle</button>
+         <button class="prevSongBtnClass" title="Previous songs">&#8606;</button>
+         <button class="nextSongBtnClass" title="Next songs">&#8608;</button><br>
+         <button class="openColectionsBtnClass" title="Go to Song collection panel">Collections</button>
+         <button class="toggleQModeBtnClass" title="Toggle Q mode / instant play">Toggle Q</button>
+         <button class="clearCurrentPlaylistBtnClass" title="Clear the current playlist.">Clr Playlist</button>
+         <button class="openPlaylistsBtnClass" title="Load/Save/Import/Export Playlists">Playlst Hub</button>
+       </div>
+       <div id="plBody"></div>
+    </div>
+    <div class="list" id="songslist">
+       <div id="slHead">
+         <h3></h3>
+         <button class="playBtnClass" title="Start/Stop the playlist">Play/Pause</button>
+         <button class="prevCollectionBtn" title="Previous collection of songs">&#8606;</button>
+         <button class="nextCollectionBtn" title="Next collection of songs">&#8608;</button>
+         <button class="openCurrentPlaylistBtnClass" id="showPlaylistBtn" title="Open Current Playlist">Playlist</button><br>
+         <button class="toggleQModeBtnClass" title="Toggle Q mode / instant play">Toggle Q</button> 
+         <button class="addAllCollection" id="playlistMode" title="Add all of the collection to playlist, 
+                                                                   click song to add individual song.">Add (All)</button>
+         
+       </div>
+       <div id="slBody"></div>
+    </div>
+    <div id="savedPlaylistsDiv">
+      <h3>Playlists Hub</h3>
+      <div>
+         <div class="radioSpan">1</div>
+         <div class="radioSpan">2</div>
+         <div class="radioSpan">3</div>
+         <div class="radioSpan">4</div>
+         <div class="radioSpan">5</div>
+         <div class="radioSpan">6</div>
+         <div class="radioSpan">7</div>
+      </div>
+      <div id="savedPlaylistsIndicators">
+        <div class="radioSpan"><input value="1" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="2" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="3" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="4" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="5" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="6" name="plistRadio" type="radio"></div>
+        <div class="radioSpan"><input value="7" name="plistRadio" type="radio"></div>
+      </div>
+      <div class="saveDlgBtnRow">
+        <button title="Load list of songs from brower that had been saved" id="loadPlaylistBtn">Load</button>
+        <button title="Save current list of songs to brower" id="savePlaylistBtn">Save</button>
+        <button title="Delete selected saved playlist" id="clearPlaylistBtn">Clear</button>
+        <button class="openCurrentPlaylistBtnClass" title="Return to Current Playlist" id="returnPlBtn">Playlist</button>
+        <button title="Load Playlists from loacal file that had been exported earler" id="importPlaylistsBtn">Import</button>
+        <button title="Save Playlists to local file" id="exportPlaylistsBtn">Export</button>
+      </div> 
+    </div>
+    <div id="ctrl">
+      <div class="openCurrentPlaylistBtnClass" title="Open current playlist" id="curPlBtn"></div>
+      <div class="openColectionsBtnClass" title="Open save/load/import/export playlist dialogue" id="songsListBtn"></div>
+      <div class="openPlaylistsBtnClass" title="Open song collections" id="savePlBtn"></div>
+      <audio controls>
+        <source id="player" src="paused.mp3" type="audio/mpeg">
+      </audio>
+      <div id="subCtrl">
+        <span id="subCtrlBody">
+          <div class="ctrlBtns" id="qBtn" title="Toggle playlist">Q</div>
+          <div class="ctrlBtns nextSongBtnClass" title="Next song">&#8658;</div>
+          <div class="ctrlBtns clearCurrentPlaylistBtnClass" id="trashBtn" title="Empty playlist">&#128465;</div>
+        </span>
+      </div>
+      <div id="helpBtn"></div>
+    </div> 
+    <img id="cover" src="images/jukebox2.png">
+  </div>
+  <a id="textLink" style="display:none;"></a>
+  <input style="display:none" id="loadLocalFile" type="file"/>
+<script>
+ 
+  setInterval(()=>{ // clock hand movement and check for allarm
+    let today = new Date();
+    document.getElementById("secondHand").style.transform = "rotate("+(today.getSeconds()/60*360)+"deg)"; 
+    document.getElementById("minuteHand").style.transform = "rotate("+(today.getMinutes()/60*360)+"deg)"; 
+    document.getElementById("hourHand").style.transform = "rotate("+((today.getHours()%12)/12*360+(today.getMinutes()/60*30))+"deg)"; 
+    if (alarmTime !== "") {
+      const p=(n)=>("00"+n).slice(-2);
+      let date = p(today.getMonth()+1)+'/'+p(today.getDate())+'/'+today.getFullYear();
+      let time = p(today.getHours()) + ":" + p(today.getMinutes()) + ":" + p(today.getSeconds());
+      let a = Date.parse(alarmTime);
+      let b = Date.parse(time+" "+date);
+      if (b > a) {    
+        document.getElementById("alarmIndicator").style.display = "none";
+        document.getElementById("clockAlarmPlayer").play();
+        zDialogue("Time is up!", "OK");
+        alarmTime = "";
+      }
+    }
+  },500);
+
+  function clockClick() { // Setup and cancel alarm
+    
+    if (alarmTime !== "") {
+      zDialogue("Stop Alarm?", "YESNO", function (m) {
+        if (m == "YES") {
+          alarmTime = "";
+          document.getElementById("alarmIndicator").title = "";
+          document.getElementById("alarmIndicator").style.display = "none";
+        }
+      });
+      return;
+    } 
+    if (!document.getElementById("clockAlarmPlayer").paused) {
+      document.getElementById("clockAlarmPlayer").pause();
+      document.getElementById("clockAlarmPlayer").load();
+      return;
+    }
+    zDialogue("Please enter the time for the alarm.<br><h5>HH:MM:SS MM/DD/YYYY</h5>", "RESP", function (tt) {
+    // let tt = prompt("Please enter the time for the alarm.\n\nHH:MM:SS MM/DD/YYYY");
+    if (tt == undefined || tt == "CANCEL") return;
+    if (/^\d{1,2}:\d{1,2}:\d{1,2} \d{1,2}\/\d{1,2}\/\d{4}/.test(tt)) {
+       zDialogue("Alarm set.", "OK");
+       document.getElementById("alarmIndicator").title = "The alarm is set for - "+tt;
+       document.getElementById("alarmIndicator").style.display = "block";
+       alarmTime = tt;
+    } else {
+       zDialogue("Invalid time, alarm not set.", "OK");
+    }
+    });
+ 
+  }
+  
+  
+  function searchSongs() {
+   
+    zDialogue("Enter key word to search songs for.", "RESP", function (s) {
+      if (!s) return;
+      s = s.toLowerCase().replace(/\s/g, '');
+      songSearchResults = [];
+        allSongsSearch.forEach((folder, a)=>{
+          folder.forEach((song, b)=>{
+            if (song.includes(s)) {
+              songSearchResults.push(folders[a]+allSongs[a][b])
+            }
+          });
+        });
+      folders.push("");
+      fIndex = folders.length-1;
+      songs = [...songSearchResults];
+      displayChosenPanel(null, 2);
+      // console.log(songSearchResults);   
+     
+    });
+  }
+  
+  
+  let volume = localStorage.getItem("jukeboxVolume") || 0.5;
+  let alarmTime = "";
+  let vTimeout;
+  let sIndex = 0;
+  let fIndex = 0;
+  let folders = []; //["patch/", "colby/", "dadsStuff/", "garysStuff/", "garysStuff2/", "creedence/", "weirdAl/"];
+  let songs = [];
+  let allSongsSearch = [];
+  let songSearchResults = [];
+  let allSongs = [];
+  let songsQ = localStorage.getItem("jukeboxQ") || [];
+  let playlistMode = true;
+  let lightsOn = false;
+  let playlistSets = localStorage.getItem("playlistSets");
+  const elementBlur=(e)=> e.target.style.display="none";
+
+  if (typeof songsQ === "string") songsQ = JSON.parse(songsQ);
+
+  volume = parseFloat(volume);
+  document.getElementById("player").parentNode.volume = volume;
+
+  if (playlistSets == null) {  // load playlist from browser cache
+      playlistSets = [[],[],[],[],[],[],[]]; 
+      localStorage.setItem("playlistSets", JSON.stringify(playlistSets));
+  } else {
+    playlistSets = JSON.parse(playlistSets);
+  }
+  
+  fetch("dir.lst") // load the list of the folders that make up to collections
+  .then(
+    function(response) {
+      if (response.status !== 200) {
+        console.log('Looks like there was a problem. Status Code: ' +
+          response.status);
+        return;
+      }
+      // Examine the text in the response
+      response.json().then(function(data) {
+        folders = JSON.parse(data);
+        folders.sort();
+        grabFolders()
+      });
+    }
+  )
+  .catch(function(err) {
+    console.log('Fetch Error :-S', err);
+  });
+  
+  function saveCurrentPlaylist() {
+    localStorage.setItem("jukeboxQ", JSON.stringify(songsQ)); 
+  }
+  
+  function getSelectedPlaylist(n) {
+    let i;
+    let els = document.getElementsByName(n);
+    for(i=0;i<els.length;i++) {
+      if (els[i].checked) return i;
+    }
+    return false;
+  }
+  
+  document.getElementById("loadPlaylistBtn").addEventListener("click", (e)=>{
+    pIndex = getSelectedPlaylist("plistRadio");
+    songsQ = [...playlistSets[pIndex]];
+    populatePlaylistDiv();  
+    sIndex = 0;
+  });
+  
+  document.getElementById("savePlaylistBtn").addEventListener("click", (e)=>{
+    pIndex = getSelectedPlaylist("plistRadio");
+    playlistSets[pIndex] = [...songsQ];
+    localStorage.setItem("playlistSets", JSON.stringify(playlistSets));
+    updatePlaylistSavedStatus();
+  });
+  
+  document.getElementById("clearPlaylistBtn").addEventListener("click", (e)=>{
+    pIndex = getSelectedPlaylist("plistRadio");
+    playlistSets[pIndex] = [];
+    localStorage.setItem("playlistSets", JSON.stringify(playlistSets));
+    updatePlaylistSavedStatus()
+  });
+          
+  function handleFileImport(evt) { // Function that is triggerd then loads the local file
+    let file = evt.target.files[0];
+    let localFile = new FileReader();
+
+    // Closure to capture the file information.
+    localFile.onload = (function(theFile) {
+
+      return function(e) {
+        playlistSets = JSON.parse(e.target.result);
+        localStorage.setItem("playlistSets", e.target.result);
+      };
+    })(file);
+    localFile.readAsText(file);
+  }
+  
+  document.getElementById("loadLocalFile").addEventListener("change", handleFileImport);
+  
+  document.getElementById("importPlaylistsBtn").addEventListener("click", (e)=>{
+    document.getElementById("loadLocalFile").click();
+  });
+  
+        
+  function exportPlaylist() {
+    // https://stackoverflow.com/questions/8126623/downloading-canvas-element-to-an-image
+    let date = new Date();
+    let timestamp = date.toLocaleString();
+    
+    let textToSaveAsBlob = new Blob([JSON.stringify(playlistSets)], {type:"text/plain"});
+    let textToSaveURL = window.URL.createObjectURL(textToSaveAsBlob);
+    
+    let link = document.getElementById("textLink");
+    let fileName = 'PPC_Jukebox_Playlists_' + timestamp + "_T";
+  
+    link.setAttribute('download', fileName + '.lst');
+    link.setAttribute('href', textToSaveURL);
+    link.click();
+  };  
+  
+  document.getElementById("exportPlaylistsBtn").addEventListener("click", (e)=>{
+    exportPlaylist();
+  });
+
+  function updatePlaylistSavedStatus() {
+    let el = document.getElementById("savedPlaylistsDiv").childNodes[3];
+    playlistSets.forEach((a, i)=>{
+      if (a != null && a.length > 0) el.childNodes[i+i+1].style.color = "red";
+      else el.childNodes[i+i+1].style.color = "black";
+    });
+  }
+ 
+  function toggleQMode() {
+    playlistMode=!playlistMode;
+    if (playlistMode) e.target.style.color = "green";
+    else e.target.style.color = "white";
+  }
+ 
+  document.getElementById("playlist").addEventListener("click", (e)=>{
+    // Handel clicks on songs in the current playlist
+    if (e.target.classList.contains("song")) {
+      let el = e.target;
+      let song = el.innerText;
+      el.remove();
+      sIndex = songsQ.indexOf(song)-1;
+      if (e.ctrlKey) { // ctrl click remove song from playlist
+        songsQ.splice(sIndex, 1);
+        saveCurrentPlaylist();
+      } else {
+        playSong("next"); // reg click jump to song and start playing
+      } 
+        e.stopPropagation();
+    }
+  });
+  
+  function addAllCollection () {
+    [...songs].reverse().forEach((song)=>{
+      songsQ.unshift(`${folders[fIndex]}${song}`);
+    });
+   }
+  
+  document.getElementById("songslist").addEventListener("click", (e)=>{
+    if (e.target.classList.contains("song")) {  // play song NOW it Q mode not active
+      if (playlistMode) {
+        songsQ.push(folders[fIndex]+e.target.innerText);
+        return false;
+      }
+      document.getElementById("player").src=folders[fIndex]+e.target.innerText;
+      document.getElementById("player").parentNode.load();
+      document.getElementById("player").parentNode.play();
+    }
+    e.stopPropagation();
+  });
+  
+  function togglePlay() { // play pause song
+    let player = document.getElementById("player").parentNode;
+    if (!player.paused) {
+      player.pause();
+      showMessage("Pausing Song");
+    } else { 
+      player.play();
+      showMessage("Playing Song");
+    }
+  }
+  
+  function mixSongs() { // shuffle/mix songs in playlist
+    let x;
+    let temp;
+    let max = songsQ.length;
+    for (x=0;x<max;x++) {
+      let i = Math.floor(Math.random()*max);
+      temp = songsQ[x];
+      songsQ[x] = songsQ[i];
+      songsQ[i] = temp;
+    }
+    sIndex = 0;
+    showMessage("Shuffeling");
+    populatePlaylistDiv();
+  }
+  
+  function displayChosenPanel(e, i){ // swap playlist first turn all off then turn needed on
+    document.getElementById("helpDiv").style.display="none";
+    document.getElementById("songslist").style.display="none";
+    document.getElementById("playlist").style.display="none";
+    document.getElementById("savedPlaylistsDiv").style.display="none";
+    switch (i) {
+       case 1:
+         populatePlaylistDiv();
+         document.getElementById("playlist").style.display="block";
+        
+       break;
+       case 2: 
+         displayCurrentCollection();
+         document.getElementById("songslist").style.display="block";
+        
+       break;
+       case 3: 
+         updatePlaylistSavedStatus();
+         document.getElementById("savedPlaylistsDiv").style.display="block";
+        
+       break;
+       case 4:
+         document.getElementById("helpDiv").style.display="block";
+       
+       break;
+       
+    }
+  }
+  
+  function updateCollection(e, d) { // load next collection and try to scroll to top 
+    if (d == "next") {
+      fIndex++;
+      if (fIndex > folders.length-1) fIndex=0;
+      displayCurrentCollection();
+      document.getElementById("songslist").scroll(0,0);
+    } else {
+      fIndex--;
+      if (fIndex <= 0) fIndex=folders.length-1;
+      displayCurrentCollection();
+      document.getElementById("songslist").scroll(0,0);
+    }
+  }
+  
+  function populatePlaylistDiv() { // build display for current playlist
+    let html = "";
+    let el = document.getElementById("plBody");
+    if (songsQ.length > 0) html+="<span class='song'>"+songsQ.join("</span><span class='song'>")+"</span>"; 
+    el.innerHTML = html;
+    if (sIndex < 0 || songsQ.length < 1 || sIndex > songsQ.length-1) return;
+    el.childNodes[sIndex].style.backgroundColor = "lightgreen";
+    saveCurrentPlaylist();
+  }
+
+  function grabFolders() {
+    folders.forEach((folder, i)=>{
+      allSongs.push([]);
+      allSongsSearch.push([]);
+      // console.log(folder);
+      let songs = [];
+      fetch(folder)
+      .then((response)=>{
+        if (response.status !== 200) {
+          console.log('Looks like there was a problem. Status Code: ' +
+            response.status);
+          return;
+        }
+        // Examine the text in the response
+        response.text().then(function(data) {
+          try {
+            songs = data.match(/href="(\S+.(?:wav|mp3))"/g).map((s)=>{return decodeURIComponent(s.slice(6).slice(0,-1))});
+            allSongs[i]=[...songs];
+            allSongsSearch[i]=songs.map((s)=>{return s.toLowerCase()});
+        		} catch(err) {
+         			console.log(folder, err);
+        		}
+        });
+      });
+    });
+  }
+
+
+  function displayCurrentCollection() { // get list of songs in current collection
+    let el = document.getElementById("slHead").childNodes[1];
+    let elm = document.getElementById("slBody");
+    elm.innerHTML = "";
+    if (folders[fIndex] == "") {
+      songs = [...songSearchResults];
+      el.innerHTML = "Search Results";
+      songs.forEach((song)=>{
+        let netEl = document.createElement("span");
+        netEl.classList.add("song");
+        netEl.innerHTML = song;
+        elm.appendChild(netEl);
+      });
+    } else {
+      songs = [...allSongs[fIndex]];
+      el.innerHTML = `Collection : <span class="radioSpan">${folders[fIndex]}</span>`;
+      allSongs[fIndex].forEach((song)=>{
+        let netEl = document.createElement("span");
+        netEl.classList.add("song");
+        netEl.innerHTML = song;
+        elm.appendChild(netEl);
+      });
+    }
+    
+    
+  }  // end of displayCurrentCollections
+  
+  function trashCurrentPlaylist() {
+   
+    zDialogue("Clear current play plist?", "YESNO", function(m) {
+ 
+      if (m != "YES") return;
+      songsQ = [];
+      sIndex=0;
+      // document.getElementById("player").parentNode.pause();
+      document.getElementById("player").src = "paused.mp3";
+      document.getElementById("player").parentNode.load();
+      showMessage("Clear playlist");
+      saveCurrentPlaylist();
+    });
+  }
+  
+  document.addEventListener("keydown", (e)=>{ // handel the gloabal key bindings
+
+    if (window.getComputedStyle(document.getElementById("zDialogueDIV")).display != "none") return;
+    // console.log(e.keyCode);
+    e.preventDefault();
+    switch (e.keyCode) {
+      case 83:                                               // (s) search for song
+        searchSongs();
+        break;
+      case 77:                                               // (m) mix play list
+        mixSongs();
+        break;
+      case 78:                                               // (n) go to next song
+        playSong(e, true);
+        break;
+        
+      case 86:                                               // (v) view playlist
+        displayChosenPanel(e, 1);
+        break;
+        
+      case 87:                                               // (w) save/load playlist
+        displayChosenPanel(e, 3);
+        break;
+        
+      case 88:                                               // (x) clear play list  
+        trashCurrentPlaylist();
+        break;
+        
+      case 32:
+      case 39:                                               // (space or right arrow) next song collection 
+        if (getComputedStyle(document.getElementById("songslist"), null).display == "block") { updateCollection(null, "next"); } 
+        else { playSong(e, "next"); }
+        break;
+       
+      case 37:                                               // (left arrow) previous song collection
+        if (getComputedStyle(document.getElementById("songslist"), null).display == "block") { updateCollection(null, "prev"); } 
+        else { playSong(e, "prev"); }
+        break;
+       
+      case 67:                                               // (c) open collections to choose songs
+        displayChosenPanel(e, 2);
+        break;
+        
+      case 27:                                               // (ESC) close playlist, songlist and help
+        displayChosenPanel();
+        break;
+        
+      case 72:                                               // (h) open help
+        displayChosenPanel(e, 4);
+        break;
+        
+      case 80:                                               // (P) pause/play song
+        togglePlay();
+        break;
+        
+      case 38:                                               // (c) volume up .5%
+         if (document.getElementById("player").parentNode.volume > 0.95) { document.getElementById("player").parentNode.volume=1; }
+         else {
+           document.getElementById("player").parentNode.volume+=0.05;
+           // showMessage((Math.round(document.getElementById("player").parentNode.volume*1000) / 10)+"%");
+         }
+         showMessage((Math.round(document.getElementById("player").parentNode.volume*1000) / 10)+"%");
+         volume = document.getElementById("player").parentNode.volume;
+         console.log(volume);
+         localStorage.setItem("jukeboxVolume", volume);
+         break;
+         
+         
+      case 40:                                               // (c) volume down .5%
+         if (document.getElementById("player").parentNode.volume < 0.05) { document.getElementById("player").parentNode.volume=0; }
+         else {
+           document.getElementById("player").parentNode.volume-=0.05;
+           
+         }
+         showMessage((Math.round(document.getElementById("player").parentNode.volume*1000) / 10)+"%");
+         volume = document.getElementById("player").parentNode.volume;
+         console.log(volume);
+         localStorage.setItem("jukeboxVolume", volume);
+         break;
+         
+         
+      case 81:                                                // (q) toggle play mode
+        playlistMode=!playlistMode;
+        let el = document.getElementById("qBtn");
+        if (playlistMode) {
+           el.style.color = "green";
+           showMessage("Playlist mode");
+        } else { 
+           el.style.color = "white";
+           showMessage("Jukebox mode");
+        }
+        break;
+       
+      case 76:                                                // (l) turn on night light
+        if (lightsOn) { document.body.style.backgroundColor = "black"; } 
+        else { document.body.style.backgroundColor = "white"; } 
+        lightsOn=!lightsOn;
+        break;
+    }
+  });
+
+  function showMessage(msg) { // display a message on screen and then remove it after a time
+    const clearMsg=()=>document.getElementById("msgDiv").style.display = "none";
+    document.getElementById("msgDiv").innerText = msg;
+    document.getElementById("msgDiv").style.display = "block";
+    if (typeof(vTimeout) !== undefined) clearTimeout(vTimeout);
+    vTimeout = setTimeout(clearMsg, 2500);
+  }
+
+  function playSong(e,playNext="next") { // load and play the next or previous song
+    let cSong = document.getElementById("player").src;
+    // console.log(sIndex, songsQ.length, cSong);
+    if (playNext=="next") {
+      if (songsQ.length > 0) {
+        if (cSong.slice(-10) == "paused.mp3" || cSong == "" || sIndex >= songsQ.length-1) {  
+           sIndex = 0;
+           document.getElementById("player").src = songsQ[sIndex];
+           document.getElementById("player").parentNode.load();
+        } else if (sIndex < songsQ.length-1) {
+           sIndex++;
+           document.getElementById("player").src = songsQ[sIndex];
+           document.getElementById("player").parentNode.load();
+        }
+        showMessage("Next song");
+      } else return;
+    } else if (playNext=="prev") {
+      if (songsQ.length > 0) {
+        if (cSong.slice(-10) == "paused.mp3" || cSong == "" || sIndex < 1) {
+          sIndex = songsQ.length-1;
+          document.getElementById("player").src = songsQ[sIndex];
+          document.getElementById("player").parentNode.load();
+        } else if (sIndex > 0) {
+          sIndex--;
+          document.getElementById("player").src = songsQ[sIndex];
+          document.getElementById("player").parentNode.load();
+        }
+        showMessage("Prev song");
+      } else return;
+    }
+    populatePlaylistDiv();
+    document.getElementById("player").parentNode.play();
+  }
+  
+  document.getElementById("player").parentNode.addEventListener("ended", ()=>{ // listen for end of song and start next song
+    if (songsQ.length > 0) {
+      // sIndex++;
+      playSong("next");
+      return false;
+    } 
+    populatePlaylistDiv();
+    document.getElementById("songslist").style.display="block";
+  });
+  
+  // dynamicly generate event handlers most useful when needing multiple triggers for same action
+  
+  let eventsObj = [{target:".playBtnClass", type:"click", func:togglePlay, arg:null}
+                 ,{target:".shuffleBtnClass", type:"click", func:mixSongs, arg:null}
+                 ,{target:".nextSongBtnClass", type:"click", func:playSong, arg:"next"}
+                 ,{target:".prevSongBtnClass", type:"click", func:playSong, arg:"prev"}
+                 ,{target:".openColectionsBtnClass", type:"click", func:displayChosenPanel, arg:2}
+                 ,{target:".openPlaylistsBtnClass", type:"click", func:displayChosenPanel, arg:3}
+                 ,{target:".openCurrentPlaylistBtnClass", type:"click", func:displayChosenPanel, arg:1}
+                 ,{target:"#helpBtn", type:"click", func:displayChosenPanel, arg:4}
+                 ,{target:".clearCurrentPlaylistBtnClass", type:"click", func:trashCurrentPlaylist, arg:null}
+                 ,{target:".toggleQModeBtnClass", type:"click", func:toggleQMode, arg:null}
+                 ,{target:".addAllCollection", type:"click", func:addAllCollection, arg:null}
+                 ,{target:".alarmBtn", type:"click", func:clockClick, arg:null}
+                 ,{target:"#savedPlaylistsDiv", type:"mouseleave", func:elementBlur, arg:null}
+                 ,{target:"#songslist", type:"mouseleave", func:elementBlur, arg:null}
+                 ,{target:"#playlist", type:"mouseleave", func:elementBlur, arg:null}
+                 ,{target:"#helpDiv", type:"mouseleave", func:elementBlur, arg:null}
+                 ,{target:".nextCollectionBtn", type:"click", func:updateCollection, arg:"next"}
+                 ,{target:".prevCollectionBtn", type:"click", func:updateCollection, arg:"prev"}];
+                  
+ eventsObj.forEach((a)=>{
+  let els = document.querySelectorAll(a.target);
+    els.forEach((el)=>{
+      el.addEventListener(a.type, (e)=> a.func(e, a.arg));
+   });
+ });
+  
+</script>
+</body>
+</html>
+
